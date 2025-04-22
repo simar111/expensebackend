@@ -11,10 +11,22 @@ dotenv.config();
 const app = express();
 
 // ✅ CORS Configuration
-const allowedOrigins = ['http://localhost:3000', 'https://your-frontend-domain.com']; // Add production domain too if needed
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://softechexpenseease.netlify.app" // 🔁 Replace this with your actual deployed frontend URL
+];
+
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
+  origin: function (origin, callback) {
+    // Allow requests with no origin like mobile apps or curl
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
 }));
 
 // Middleware
@@ -24,9 +36,12 @@ app.use(express.json());
 app.options("*", cors());
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("✅ MongoDB Connected"))
-    .catch((err) => console.log("❌ MongoDB Connection Error:", err));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log("❌ MongoDB Connection Error:", err));
 
 // Routes
 app.use("/api/auth", authRoutes);
