@@ -10,9 +10,18 @@ const transactionRoutes = require("./routes/transactionroutes");
 dotenv.config();
 const app = express();
 
+// ✅ CORS Configuration
+const allowedOrigins = ['http://localhost:3000', 'https://your-frontend-domain.com']; // Add production domain too if needed
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
+
+// Handle preflight requests
+app.options("*", cors());
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
